@@ -1,28 +1,28 @@
-const jwt = require("jsonwebtoken");
-const { UserModel } = require("../models");
+const jwt = require("jsonwebtoken");
+const { UserModel } = require("../models");
 
-    const validateJWT = async (req, res, next) => {
-        if (req.method == "OPTIONS") {
-            next(); 
-        } else if (
-            req.headers.authorization &&
-            req.headers.authorization.includes("Bearer")
-        ) {
-        const { authorization } = req.headers;
+const validateJWT = async (req, res, next) => {
+    if (req.method == "OPTIONS") {
+        next();
+    } else if (
+        req.headers.authorization &&
+        req.headers.authorization.includes("Bearer")
+    ) {
+        const { authorization } = req.headers;
         console.log("authorization -->", authorization);
-        const payload = authorization
-        ? jwt.verify(
-            authorization.includes("Bearer")
-                ? authorization.split(" ")[1]
-                : authorization,
+        const result = authorization.includes("Bearer") ? authorization.split(" ")[1] : authorization
+        console.log(result)
+        //this console log works
+        const payload = authorization ? jwt.verify( //failing starts here
+                result,
                 process.env.JWT_SECRET
             )
-            : undefined;
+            : undefined;
 
-            console.log("payload -->", payload);
+        console.log("payload -->", payload); // doesnt get to this console log
 
-        if (payload) {
-            let foundUser = await UserModel.findOne({ where: { id: payload.id } });
+        if (payload) {
+            let foundUser = await UserModel.findOne({ where: { id: payload.id } }); //"property id does not exist"
             console.log("foundUser -->", foundUser);
 
             if (foundUser) {
@@ -32,12 +32,12 @@ const { UserModel } = require("../models");
             } else {
                 res.status(400).send({ message: "Not Authorized" });
             }
-            } else {
-                res.status(401).send({ message: "Invalid token" });
-            }
         } else {
-            res.status(403).send({ message: "Forbidden" });
+            res.status(401).send({ message: "Invalid token" });
         }
-    };
+    } else {
+        res.status(403).send({ message: "Forbidden" });
+    }
+};
 
 module.exports = validateJWT;
