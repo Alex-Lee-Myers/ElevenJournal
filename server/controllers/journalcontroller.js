@@ -108,23 +108,23 @@ router.put("/update/:entryId", validateJWT, async (req, res) => {
 //! ---------------
 //! Delete a Journal
 
-router.delete("/delete/:id", validateJWT, async (req, res) => {
-const ownerId = req.user.id;
-const journalId = req.params.id;
+router.delete("/delete/:id", validateJWT, async (req, res) => {
+    const ownerId = req.user.id;
+    const journalId = req.params.id;
 
-try {
-const query = {
-where: {
-id: journalId,
-owner: ownerId
-}
-};
+    try {
+        const query = {
+            where: {
+                id: journalId,
+                owner: ownerId
+            }
+        };
 
-await JournalModel.destroy(query);
-res.status(200).json({ message: "Journal Entry Removed" });
-} catch (err) {
-res.status(500).json({ error: err });
-}
+        await JournalModel.destroy(query);
+        res.status(200).json({ message: "Journal Entry Removed" });
+    } catch (err) {
+        res.status(500).json({ error: err });
+    }
 });
 
 module.exports = router;
